@@ -111,6 +111,13 @@ data class ResolvedLicense(
     val isDetectedExcluded by lazy {
         LicenseSource.DETECTED in sources && locations.all { it.matchingPathExcludes.isNotEmpty() }
     }
+
+    fun getCopyrights(omitExcluded: Boolean = false): Set<String> =
+        locations.flatMapTo(sortedSetOf()) { location ->
+            location.copyrights.filter { copyright ->
+                !omitExcluded || copyright.findings.any { it.matchingPathExcludes.isEmpty() }
+            }.map { it.statement }
+        }
 }
 
 /**
